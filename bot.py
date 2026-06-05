@@ -4,10 +4,10 @@ from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, ContextTypes, ConversationHandler, filters
 
-BOT_TOKEN = "8942121012:AAHDcXLhp425CGvAIteRgDYwjq9dvCNTFV0"
+BOT_TOKEN ="8997193542:AAFC48cC-RUfdSna71vY0z7k1LL2IfSQePc"
 WALLET_ADDRESS = "5rf6gza7s7i8eDeBKQf1TMyayZU3ERJ467t3yfmihQpr"
 GROUP_LINK = "https://t.me/+MVlYdRHNOGBiNDlk"
-ADMIN_ID = 8452728941
+ADMIN_ID = 8106708023
 BOT_NAME = "MemeDegenAlpha"
 VERSION = "v2.0 Pro"
 
